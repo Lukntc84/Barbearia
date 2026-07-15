@@ -1,0 +1,208 @@
+/* agendamentos/static/agendamentos/css/style.css */
+
+/* Importando fonte moderna */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --bg-main: #121214;
+    --bg-card: #1c1c1e;
+    --primary: #cca43b; /* Dourado Barber */
+    --primary-hover: #b59232;
+    --text-main: #ffffff;
+    --text-muted: #a0a0a5;
+    --border-color: #2c2c2e;
+    --danger: #fa4d4d;
+    --success: #24c26b;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    min-height: 100vh;
+}
+
+/* Customização de Cards */
+.custom-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.card-title {
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+/* Inputs e Selects Premium */
+.form-control, .form-select {
+    background-color: #2c2c2e !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 0.25rem rgba(204, 164, 59, 0.25) !important;
+}
+
+/* Botões */
+.btn-primary-barber {
+    background-color: var(--primary);
+    color: #121214;
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary-barber:hover {
+    background-color: var(--primary-hover);
+    color: #121214;
+    transform: translateY(-2px);
+}
+
+/* Grade de Horários (Slots) */
+.slot-label {
+    background-color: #2c2c2e;
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-check:checked + .slot-label {
+    background-color: var(--primary) !important;
+    color: #121214 !important;
+    border-color: var(--primary) !important;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(204, 164, 59, 0.3);
+}
+
+.btn-check:not(:checked) + .slot-label:hover {
+    border-color: var(--primary);
+    background-color: rgba(204, 164, 59, 0.05);
+}
+
+/* Slots Ocupados/Passados */
+.btn-check:disabled + .slot-label {
+    background-color: #1c1c1e !important;
+    border-color: #2c2c2e !important;
+    color: #48484a !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Tabelas do Dashboard */
+.custom-table {
+    color: var(--text-main) !important;
+}
+
+.custom-table thead th {
+    background-color: #2c2c2e !important;
+    color: var(--primary) !important;
+    border-bottom: 2px solid var(--border-color);
+    font-weight: 600;
+}
+
+.custom-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.2s;
+}
+
+.custom-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Mini Cards de Estatísticas do Dashboard */
+.stat-card {
+    background-color: var(--bg-card);
+    border-left: 4px solid var(--primary);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+/* ==========================================================================
+   NOVAS CORES DOS STATUS (DASHBOARD)
+   ========================================================================== */
+.status-select {
+    border: none !important;
+    border-radius: 20px !important;
+    padding: 8px 20px !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Amarelo para Pendente */
+.status-pendente {
+    background-color: #ffca28 !important;
+    color: #121214 !important;
+}
+
+/* Azul para Confirmado */
+.status-confirmado {
+    background-color: #3b82f6 !important;
+    color: #ffffff !important;
+}
+
+/* Verde para Concluído */
+.status-concluido {
+    background-color: #10b981 !important;
+    color: #121214 !important;
+}
+
+/* Vermelho para Cancelado */
+.status-cancelado {
+    background-color: #ef4444 !important;
+    color: #ffffff !important;
+}
+
+/* Ajuste para as opções internas do dropdown não ficarem invisíveis */
+.status-select option {
+    background-color: #1c1c1e !important;
+    color: #ffffff !important;
+    font-weight: normal;
+}
+
+
+/* ==========================================================================
+   CORES DOS SLOTS DE HORÁRIOS (TELA DE AGENDAR)
+   ========================================================================== */
+/* Slot Livre - Verde */
+.slot-livre {
+    border: 2px solid #10b981 !important;
+    color: #10b981 !important;
+    background-color: rgba(16, 185, 129, 0.05) !important;
+}
+.slot-livre:hover {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+}
+/* Quando o cliente clica no horário livre, ele fica verde sólido */
+.btn-check:checked + .slot-livre {
+    background-color: #10b981 !important;
+    color: #121214 !important;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.5) !important;
+}
+
+/* Slot Ocupado - Vermelho */
+.slot-ocupado {
+    border: 1px solid #ef4444 !important;
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    color: #ef4444 !important;
+}
+
+/* Slot que já passou do horário - Cinza Escuro */
+.slot-passou {
+    border: 1px solid #48484a !important;
+    background-color: #2c2c2e !important;
+    color: #7c7c80 !important;
+}
