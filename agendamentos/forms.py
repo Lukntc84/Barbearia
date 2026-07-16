@@ -3,7 +3,11 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
-from .models import Cliente
+from .models import (
+    Cliente,
+    ConfiguracaoBarbeiro,
+    HorarioFuncionamento,
+)
 
 
 class CadastroClienteForm(forms.Form):
@@ -119,3 +123,74 @@ class LoginClienteForm(AuthenticationForm):
             "placeholder": "Digite sua senha",
         })
     )
+
+
+class ConfiguracaoBarbeiroForm(forms.ModelForm):
+    class Meta:
+        model = ConfiguracaoBarbeiro
+
+        fields = [
+            "antecedencia_cancelamento_horas",
+            "antecedencia_reagendamento_horas",
+            "antecedencia_agendamento_minutos",
+            "dias_futuros_agendamento",
+            "permitir_agendamento_mesmo_dia",
+        ]
+
+        widgets = {
+            "antecedencia_cancelamento_horas": forms.NumberInput(attrs={
+                "class": "form-control",
+                "min": 0,
+                "max": 168,
+            }),
+            "antecedencia_reagendamento_horas": forms.NumberInput(attrs={
+                "class": "form-control",
+                "min": 0,
+                "max": 168,
+            }),
+            "antecedencia_agendamento_minutos": forms.NumberInput(attrs={
+                "class": "form-control",
+                "min": 0,
+                "max": 10080,
+            }),
+            "dias_futuros_agendamento": forms.NumberInput(attrs={
+                "class": "form-control",
+                "min": 1,
+                "max": 365,
+            }),
+            "permitir_agendamento_mesmo_dia": forms.CheckboxInput(attrs={
+                "class": "form-check-input",
+            }),
+        }
+
+
+class HorarioFuncionamentoForm(forms.ModelForm):
+    class Meta:
+        model = HorarioFuncionamento
+
+        fields = [
+            "hora_inicio",
+            "hora_fim",
+            "intervalo_minutos",
+            "ativo",
+        ]
+
+        widgets = {
+            "hora_inicio": forms.TimeInput(attrs={
+                "class": "form-control",
+                "type": "time",
+            }),
+            "hora_fim": forms.TimeInput(attrs={
+                "class": "form-control",
+                "type": "time",
+            }),
+            "intervalo_minutos": forms.NumberInput(attrs={
+                "class": "form-control",
+                "min": 5,
+                "max": 240,
+                "step": 5,
+            }),
+            "ativo": forms.CheckboxInput(attrs={
+                "class": "form-check-input",
+            }),
+        }

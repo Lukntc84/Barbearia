@@ -1,208 +1,967 @@
-/* agendamentos/static/agendamentos/css/style.css */
-
-/* Importando fonte moderna */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-    --bg-main: #121214;
-    --bg-card: #1c1c1e;
-    --primary: #cca43b; /* Dourado Barber */
-    --primary-hover: #b59232;
-    --text-main: #ffffff;
-    --text-muted: #a0a0a5;
-    --border-color: #2c2c2e;
-    --danger: #fa4d4d;
-    --success: #24c26b;
+    --bg-main: #0d0d0f;
+    --bg-soft: #131316;
+    --bg-card: #19191d;
+    --bg-field: #25252a;
+
+    --primary: #d8ad34;
+    --primary-hover: #efc44a;
+    --primary-soft: rgba(216, 173, 52, 0.12);
+
+    --text-main: #f8f8f8;
+    --text-secondary: #c4c4c9;
+    --text-muted: #8d8d96;
+
+    --border-color: #303036;
+    --border-strong: #3d3d45;
+
+    --danger: #ef5350;
+    --success: #22c55e;
+    --info: #3b82f6;
+    --warning: #facc15;
+
+    --shadow-soft: 0 12px 35px rgba(0, 0, 0, 0.25);
+    --shadow-strong: 0 18px 45px rgba(0, 0, 0, 0.42);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
-    background-color: var(--bg-main);
-    color: var(--text-main);
+    margin: 0;
     min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    background:
+        radial-gradient(circle at top, rgba(216, 173, 52, 0.05), transparent 28rem),
+        var(--bg-main);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
 }
 
-/* Customização de Cards */
-.custom-card {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+a {
+    text-decoration: none;
+}
+
+.container {
+    max-width: 1180px;
+}
+
+/* =========================================================
+   TÍTULOS
+   ========================================================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--text-main);
 }
 
 .card-title {
     color: var(--text-main);
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: -0.02em;
 }
 
-/* Inputs e Selects Premium */
-.form-control, .form-select {
-    background-color: #2c2c2e !important;
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.custom-card {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.018),
+            rgba(255, 255, 255, 0)
+        ),
+        var(--bg-card);
+
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    box-shadow: var(--shadow-soft);
+}
+
+.custom-card:hover {
+    border-color: var(--border-strong);
+}
+
+.card {
+    color: var(--text-main);
+}
+
+/* =========================================================
+   FORMULÁRIOS
+   ========================================================= */
+
+.form-label {
+    color: var(--text-secondary) !important;
+    font-size: 0.86rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.form-control,
+.form-select {
+    min-height: 48px;
+    background-color: var(--bg-field) !important;
     border: 1px solid var(--border-color) !important;
     color: var(--text-main) !important;
-    border-radius: 8px;
-    padding: 12px;
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 0.94rem;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:hover,
+.form-select:hover {
+    border-color: var(--border-strong) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: #29292f !important;
     border-color: var(--primary) !important;
-    box-shadow: 0 0 0 0.25rem rgba(204, 164, 59, 0.25) !important;
+    box-shadow: 0 0 0 4px rgba(216, 173, 52, 0.14) !important;
 }
 
-/* Botões */
+.form-control::placeholder {
+    color: #71717a;
+}
+
+.form-select option {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+}
+
+input[type="date"] {
+    color-scheme: dark;
+}
+
+/* =========================================================
+   BOTÕES
+   ========================================================= */
+
+.btn {
+    border-radius: 10px;
+    font-weight: 700;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
 .btn-primary-barber {
-    background-color: var(--primary);
-    color: #121214;
-    font-weight: 600;
+    background: linear-gradient(
+        135deg,
+        var(--primary),
+        #e5bb3d
+    );
+
+    color: #111;
     border: none;
-    transition: all 0.3s ease;
+    min-height: 46px;
+    box-shadow: 0 8px 20px rgba(216, 173, 52, 0.18);
 }
 
 .btn-primary-barber:hover {
-    background-color: var(--primary-hover);
-    color: #121214;
-    transform: translateY(-2px);
+    background: linear-gradient(
+        135deg,
+        var(--primary-hover),
+        #ddb338
+    );
+
+    color: #111;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(216, 173, 52, 0.27);
 }
 
-/* Grade de Horários (Slots) */
+.btn-outline-light {
+    border-color: var(--border-strong);
+    color: var(--text-secondary);
+}
+
+.btn-outline-light:hover {
+    background-color: var(--bg-field);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* =========================================================
+   TELA DE AGENDAMENTO
+   ========================================================= */
+
 .slot-label {
-    background-color: #2c2c2e;
+    min-height: 58px;
+    background-color: var(--bg-field);
     color: var(--text-main);
     border: 1px solid var(--border-color);
     border-radius: 10px;
-    padding: 14px;
-    font-weight: 500;
+    padding: 12px 8px;
+    font-size: 0.92rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition:
+        transform 0.18s ease,
+        border-color 0.18s ease,
+        background-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.btn-check:not(:checked):not(:disabled) + .slot-label:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary);
+    background-color: var(--primary-soft);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
 }
 
 .btn-check:checked + .slot-label {
-    background-color: var(--primary) !important;
-    color: #121214 !important;
+    background: linear-gradient(
+        135deg,
+        var(--primary),
+        #e7bd40
+    ) !important;
+
+    color: #111 !important;
     border-color: var(--primary) !important;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(204, 164, 59, 0.3);
+    font-weight: 800;
+    box-shadow: 0 8px 22px rgba(216, 173, 52, 0.3);
 }
 
-.btn-check:not(:checked) + .slot-label:hover {
-    border-color: var(--primary);
-    background-color: rgba(204, 164, 59, 0.05);
-}
-
-/* Slots Ocupados/Passados */
 .btn-check:disabled + .slot-label {
-    background-color: #1c1c1e !important;
-    border-color: #2c2c2e !important;
-    color: #48484a !important;
+    background-color: #161619 !important;
+    border-color: #26262b !important;
+    color: #55555e !important;
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.72;
 }
 
-/* Tabelas do Dashboard */
-.custom-table {
+.slot-livre {
+    border-color: rgba(34, 197, 94, 0.58) !important;
+    color: #66da8a !important;
+    background-color: rgba(34, 197, 94, 0.06) !important;
+}
+
+.slot-livre:hover {
+    background-color: rgba(34, 197, 94, 0.14) !important;
+}
+
+.btn-check:checked + .slot-livre {
+    background-color: var(--success) !important;
+    color: #08130c !important;
+    box-shadow: 0 0 18px rgba(34, 197, 94, 0.32) !important;
+}
+
+.slot-ocupado {
+    border-color: rgba(239, 83, 80, 0.62) !important;
+    background-color: rgba(239, 83, 80, 0.07) !important;
+    color: #ff7774 !important;
+}
+
+.slot-passou {
+    border-color: #34343b !important;
+    background-color: #19191d !important;
+    color: #66666e !important;
+}
+
+/* =========================================================
+   ALERTAS
+   ========================================================= */
+
+.alert {
+    border-radius: 12px;
+    border-width: 1px;
+    font-size: 0.9rem;
+}
+
+.alert-warning {
+    background-color: rgba(250, 204, 21, 0.09);
+    color: #f5d95f;
+    border-color: rgba(250, 204, 21, 0.32);
+}
+
+.alert-secondary {
+    background-color: #222228;
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+
+.table-responsive {
+    border-radius: 16px;
+}
+
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--text-main);
+    --bs-table-border-color: var(--border-color);
+    margin-bottom: 0;
+}
+
+.table-dark {
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.016);
+    --bs-table-hover-bg: rgba(216, 173, 52, 0.035);
+}
+
+.table thead th {
+    background-color: #202025 !important;
+    color: var(--primary) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    font-size: 0.74rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.table tbody td {
+    border-color: var(--border-color) !important;
+    vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table tbody tr {
+    transition: background-color 0.18s ease;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(216, 173, 52, 0.035);
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.status-select {
+    width: 100%;
+    min-width: 150px;
+    max-width: 180px;
+    min-height: 38px;
+    border: 1px solid transparent !important;
+    border-radius: 999px !important;
+    padding: 7px 34px 7px 14px !important;
+    font-weight: 700 !important;
+    font-size: 0.78rem !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+}
+
+.status-select:hover {
+    transform: translateY(-1px);
+}
+
+.status-pendente {
+    background-color: #facc15 !important;
+    color: #17130a !important;
+}
+
+.status-confirmado {
+    background-color: #3b82f6 !important;
+    color: #fff !important;
+}
+
+.status-concluido {
+    background-color: #22c55e !important;
+    color: #08140b !important;
+}
+
+.status-cancelado {
+    background-color: #ef4444 !important;
+    color: #fff !important;
+}
+
+.status-select option {
+    background-color: var(--bg-card) !important;
     color: var(--text-main) !important;
 }
 
-.custom-table thead th {
-    background-color: #2c2c2e !important;
-    color: var(--primary) !important;
-    border-bottom: 2px solid var(--border-color);
-    font-weight: 600;
-}
+/* =========================================================
+   CARDS DE ESTATÍSTICA
+   ========================================================= */
 
-.custom-table tbody tr {
-    border-bottom: 1px solid var(--border-color);
-    transition: background 0.2s;
-}
-
-.custom-table tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.02);
-}
-
-/* Mini Cards de Estatísticas do Dashboard */
 .stat-card {
+    height: 100%;
     background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
     border-left: 4px solid var(--primary);
-    border-radius: 8px;
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: var(--shadow-soft);
+}
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+@media (max-width: 991px) {
+    .container {
+        max-width: 100%;
+    }
+
+    .custom-card {
+        border-radius: 15px;
+    }
+
+    .table thead th,
+    .table tbody td {
+        padding: 16px !important;
+    }
+}
+
+@media (max-width: 767px) {
+    body {
+        background:
+            radial-gradient(circle at top, rgba(216, 173, 52, 0.035), transparent 20rem),
+            var(--bg-main);
+    }
+
+    .container {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .container.py-5 {
+        padding-top: 24px !important;
+        padding-bottom: 24px !important;
+    }
+
+    .custom-card {
+        padding: 20px !important;
+        border-radius: 14px;
+    }
+
+    .card-title {
+        font-size: 1.42rem;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 0.88rem;
+    }
+
+    .slot-label {
+        min-height: 54px;
+        padding: 9px 5px;
+        font-size: 0.82rem;
+    }
+
+    .row-cols-3 > * {
+        width: 50%;
+    }
+
+    /* Dashboard transforma a tabela em cards */
+    .table-responsive {
+        overflow: visible;
+    }
+
+    .table {
+        display: block;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+    .table tbody,
+    .table tr,
+    .table td {
+        display: block;
+        width: 100%;
+    }
+
+    .table tbody {
+        display: grid;
+        gap: 14px;
+    }
+
+    .table tbody tr {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 14px;
+        padding: 14px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        padding: 9px 4px !important;
+        border: none !important;
+        text-align: right;
+    }
+
+    .table tbody td::before {
+        content: attr(data-label);
+        color: var(--text-muted);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        text-align: left;
+    }
+
+    .status-select {
+        min-width: 140px;
+        max-width: 150px;
+    }
+}
+
+@media (max-width: 420px) {
+    .row-cols-3 > * {
+        width: 50%;
+    }
+
+    .slot-label {
+        font-size: 0.78rem;
+    }
+
+    .btn-primary-barber {
+        width: 100%;
+    }
+}
+
+/* =========================================================
+   DASHBOARD FASE 2
+   ========================================================= */
+
+.dashboard-eyebrow {
+    display: inline-block;
+    margin-bottom: 7px;
+    color: var(--primary);
+    font-size: 0.73rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.dashboard-title {
+    color: var(--primary);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.dashboard-subtitle {
+    color: var(--text-muted);
+    font-size: 0.94rem;
+}
+
+.dashboard-stat {
+    position: relative;
+    min-height: 128px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     padding: 20px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.025),
+            transparent
+        ),
+        var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-top: 3px solid var(--primary);
+    border-radius: 16px;
+    box-shadow: var(--shadow-soft);
 }
 
-/* ==========================================================================
-   NOVAS CORES DOS STATUS (DASHBOARD)
-   ========================================================================== */
-.status-select {
-    border: none !important;
-    border-radius: 20px !important;
-    padding: 8px 20px !important;
-    font-weight: 700 !important;
-    font-size: 0.85rem !important;
-    text-align: center !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease-in-out;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+.dashboard-stat::after {
+    content: "";
+    position: absolute;
+    right: -24px;
+    bottom: -34px;
+    width: 96px;
+    height: 96px;
+    background: var(--primary-soft);
+    border-radius: 50%;
 }
 
-/* Amarelo para Pendente */
-.status-pendente {
-    background-color: #ffca28 !important;
-    color: #121214 !important;
+.dashboard-stat-label {
+    position: relative;
+    z-index: 1;
+    color: var(--text-muted);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
-/* Azul para Confirmado */
-.status-confirmado {
-    background-color: #3b82f6 !important;
-    color: #ffffff !important;
+.dashboard-stat-value {
+    position: relative;
+    z-index: 1;
+    color: var(--text-main);
+    font-size: 2.25rem;
+    line-height: 1;
 }
 
-/* Verde para Concluído */
-.status-concluido {
-    background-color: #10b981 !important;
-    color: #121214 !important;
+.dashboard-stat-money {
+    position: relative;
+    z-index: 1;
+    color: var(--text-main);
+    font-size: clamp(1.35rem, 3vw, 2rem);
+    line-height: 1.1;
 }
 
-/* Vermelho para Cancelado */
-.status-cancelado {
-    background-color: #ef4444 !important;
-    color: #ffffff !important;
+.stat-warning {
+    border-top-color: var(--warning);
 }
 
-/* Ajuste para as opções internas do dropdown não ficarem invisíveis */
-.status-select option {
-    background-color: #1c1c1e !important;
-    color: #ffffff !important;
-    font-weight: normal;
+.stat-info {
+    border-top-color: var(--info);
 }
 
-
-/* ==========================================================================
-   CORES DOS SLOTS DE HORÁRIOS (TELA DE AGENDAR)
-   ========================================================================== */
-/* Slot Livre - Verde */
-.slot-livre {
-    border: 2px solid #10b981 !important;
-    color: #10b981 !important;
-    background-color: rgba(16, 185, 129, 0.05) !important;
-}
-.slot-livre:hover {
-    background-color: rgba(16, 185, 129, 0.2) !important;
-}
-/* Quando o cliente clica no horário livre, ele fica verde sólido */
-.btn-check:checked + .slot-livre {
-    background-color: #10b981 !important;
-    color: #121214 !important;
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.5) !important;
+.stat-success {
+    border-top-color: var(--success);
 }
 
-/* Slot Ocupado - Vermelho */
-.slot-ocupado {
-    border: 1px solid #ef4444 !important;
-    background-color: rgba(239, 68, 68, 0.1) !important;
-    color: #ef4444 !important;
+.stat-danger {
+    border-top-color: var(--danger);
 }
 
-/* Slot que já passou do horário - Cinza Escuro */
-.slot-passou {
-    border: 1px solid #48484a !important;
-    background-color: #2c2c2e !important;
-    color: #7c7c80 !important;
+.stat-money {
+    border-top-color: var(--primary);
+}
+
+.stat-money-realized {
+    border-top-color: #8b5cf6;
+}
+
+.dashboard-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.dashboard-section-header > div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dashboard-section-title {
+    margin: 0;
+    color: var(--text-main);
+    font-size: 1.2rem;
+    font-weight: 750;
+}
+
+.section-marker {
+    width: 4px;
+    height: 23px;
+    background: var(--primary);
+    border-radius: 99px;
+}
+
+.section-marker-blue {
+    background: var(--info);
+}
+
+.section-marker-muted {
+    background: var(--text-muted);
+}
+
+.dashboard-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 30px;
+    padding: 0 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 99px;
+    color: var(--text-secondary);
+    font-size: 0.77rem;
+    font-weight: 700;
+}
+
+.dashboard-client {
+    color: var(--text-main);
+    font-size: 0.96rem;
+    font-weight: 700;
+}
+
+.dashboard-empty {
+    color: var(--text-muted);
+}
+
+.status-atendimento {
+    background-color: #8b5cf6 !important;
+    color: #fff !important;
+}
+
+.status-falta {
+    background-color: #64748b !important;
+    color: #fff !important;
+}
+
+@media (max-width: 767px) {
+    .dashboard-stat {
+        min-height: 112px;
+        padding: 16px;
+    }
+
+    .dashboard-stat-value {
+        font-size: 1.8rem;
+    }
+
+    .dashboard-stat-label {
+        font-size: 0.67rem;
+    }
+
+    .dashboard-section-title {
+        font-size: 1rem;
+    }
+}
+
+/* =========================================================
+   REAGENDAMENTO
+   ========================================================= */
+
+.reagendamento-atual {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 18px;
+    background: rgba(216, 173, 52, 0.08);
+    border: 1px solid rgba(216, 173, 52, 0.25);
+    border-radius: 14px;
+}
+
+.reagendamento-atual span {
+    color: var(--primary);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.reagendamento-atual strong {
+    color: var(--text-main);
+    font-size: 1.15rem;
+}
+
+.reagendamento-atual small {
+    color: var(--text-muted);
+}
+
+.reagendamento-divider {
+    height: 1px;
+    margin: 28px 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--border-color),
+        transparent
+    );
+}
+
+/* =========================================================
+   NAVEGAÇÃO
+   ========================================================= */
+
+.barber-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    background: rgba(13, 13, 15, 0.94);
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(14px);
+}
+
+.barber-navbar-inner {
+    width: min(1180px, calc(100% - 32px));
+    min-height: 68px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.barber-brand {
+    color: var(--primary);
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+
+.barber-brand:hover {
+    color: var(--primary-hover);
+}
+
+.barber-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.barber-nav-link,
+.barber-nav-logout,
+.barber-nav-primary {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px;
+    border-radius: 9px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.barber-nav-link {
+    color: var(--text-secondary);
+    border: 1px solid transparent;
+}
+
+.barber-nav-link:hover {
+    color: var(--primary);
+    background: var(--primary-soft);
+}
+
+.barber-nav-primary {
+    color: #111;
+    background: var(--primary);
+}
+
+.barber-nav-primary:hover {
+    color: #111;
+    background: var(--primary-hover);
+}
+
+.barber-nav-form {
+    margin: 0;
+}
+
+.barber-nav-logout {
+    appearance: none;
+    background: transparent;
+    color: #ff7774;
+    border: 1px solid rgba(239, 83, 80, 0.38);
+    cursor: pointer;
+}
+
+.barber-nav-logout:hover {
+    background: rgba(239, 83, 80, 0.1);
+    border-color: var(--danger);
+}
+
+@media (max-width: 700px) {
+    .barber-navbar-inner {
+        width: calc(100% - 24px);
+        min-height: auto;
+        padding: 12px 0;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .barber-nav-links {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .barber-nav-link,
+    .barber-nav-logout,
+    .barber-nav-primary {
+        flex: 1;
+        min-width: 110px;
+    }
+
+    .barber-nav-form {
+        flex: 1;
+        display: flex;
+    }
+
+    .barber-nav-form .barber-nav-logout {
+        width: 100%;
+    }
+}
+
+/* =========================================================
+   CARDS DE AGENDAMENTOS DO CLIENTE
+   ========================================================= */
+
+.appointment-card {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.025),
+            transparent
+        ),
+        var(--bg-card) !important;
+
+    border: 1px solid var(--border-color) !important;
+    border-radius: 16px;
+    color: var(--text-main) !important;
+    box-shadow: var(--shadow-soft);
+}
+
+.appointment-card .card-body {
+    display: flex;
+    flex-direction: column;
+    padding: 22px;
+    color: var(--text-secondary);
+}
+
+.appointment-card h3 {
+    color: var(--text-main) !important;
+    font-weight: 750;
+    margin-bottom: 16px;
+}
+
+.appointment-card p {
+    color: var(--text-secondary) !important;
+}
+
+.appointment-card strong {
+    color: var(--text-main);
+}
+
+.appointment-card .btn-outline-danger {
+    color: #ff7774;
+    border-color: rgba(239, 83, 80, 0.7);
+}
+
+.appointment-card .btn-outline-danger:hover {
+    color: #ffffff;
+    background-color: var(--danger);
+    border-color: var(--danger);
 }

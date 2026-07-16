@@ -3,128 +3,362 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Administrativo - Barbeiro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'agendamentos/css/style.css' %}">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Painel do Barbeiro</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'agendamentos/css/style.css' %}"
+    >
 </head>
+
 <body>
+    {% include "agendamentos/partials/navbar.html" %}
     <div class="container py-5">
 
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+        <!-- CABEÇALHO -->
+        <header
+            class="d-flex flex-column flex-lg-row
+                   justify-content-between align-items-lg-center
+                   gap-3 mb-5"
+        >
             <div>
-                <h1 class="fw-bold mb-1" style="color: var(--primary);">Agenda do Barbeiro</h1>
-                <p class="text-muted mb-0">Gerencie os horários marcados pelos clientes</p>
-            </div>
-            <a href="{% url 'agendar_cliente' %}" class="btn btn-primary-barber px-4 py-2 rounded-3">
-                + Novo Agendamento
-            </a>
-        </div>
+                <span class="dashboard-eyebrow">
+                    Painel administrativo
+                </span>
 
+                <h1 class="dashboard-title mb-1">
+                    Agenda do Barbeiro
+                </h1>
+
+                <p class="dashboard-subtitle mb-0">
+                    Gerencie os atendimentos e acompanhe os resultados do dia.
+                </p>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a
+                    href="{% url 'agendar_cliente' %}"
+                    class="btn btn-primary-barber px-4"
+                >
+                    + Novo agendamento
+                </a>
+
+                <form
+                    method="post"
+                    action="{% url 'logout_cliente' %}"
+                >
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-outline-light px-4"
+                    >
+                        Sair
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <!-- MENSAGENS -->
         {% if messages %}
             {% for message in messages %}
-                <div class="alert {% if message.tags == 'success' %}alert-success bg-dark text-success border-success{% else %}alert-danger bg-dark text-danger border-danger{% endif %} alert-dismissible fade show" role="alert">
+                <div
+                    class="alert
+                    {% if message.tags == 'success' %}
+                        alert-success
+                    {% elif message.tags == 'warning' %}
+                        alert-warning
+                    {% else %}
+                        alert-danger
+                    {% endif %}"
+                >
                     {{ message }}
                 </div>
             {% endfor %}
         {% endif %}
 
-        <div class="card custom-card p-4 mb-4">
-            <form method="GET" class="row g-3 align-items-end">
-                <div class="col-md-5">
-                    <label class="form-label text-muted">Filtrar por data</label>
-                    <input type="date" name="data" class="form-control" value="{{ data_filtro }}">
+        <!-- CARDS DE RESUMO -->
+        <section class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <article class="dashboard-stat">
+                    <span class="dashboard-stat-label">
+                        Atendimentos hoje
+                    </span>
+
+                    <strong class="dashboard-stat-value">
+                        {{ total_hoje }}
+                    </strong>
+                </article>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <article class="dashboard-stat stat-warning">
+                    <span class="dashboard-stat-label">
+                        Pendentes
+                    </span>
+
+                    <strong class="dashboard-stat-value">
+                        {{ total_pendentes }}
+                    </strong>
+                </article>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <article class="dashboard-stat stat-info">
+                    <span class="dashboard-stat-label">
+                        Confirmados
+                    </span>
+
+                    <strong class="dashboard-stat-value">
+                        {{ total_confirmados }}
+                    </strong>
+                </article>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <article class="dashboard-stat stat-success">
+                    <span class="dashboard-stat-label">
+                        Concluídos
+                    </span>
+
+                    <strong class="dashboard-stat-value">
+                        {{ total_concluidos }}
+                    </strong>
+                </article>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <article class="dashboard-stat stat-danger">
+                    <span class="dashboard-stat-label">
+                        Cancelados
+                    </span>
+
+                    <strong class="dashboard-stat-value">
+                        {{ total_cancelados }}
+                    </strong>
+                </article>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <article class="dashboard-stat stat-money">
+                    <span class="dashboard-stat-label">
+                        Previsto hoje
+                    </span>
+
+                    <strong class="dashboard-stat-money">
+                        R$ {{ faturamento_previsto|floatformat:2 }}
+                    </strong>
+                </article>
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <article class="dashboard-stat stat-money-realized">
+                    <span class="dashboard-stat-label">
+                        Faturamento realizado hoje
+                    </span>
+
+                    <strong class="dashboard-stat-money">
+                        R$ {{ faturamento_realizado|floatformat:2 }}
+                    </strong>
+                </article>
+            </div>
+        </section>
+
+        <!-- FILTROS -->
+        <section class="card custom-card p-4 mb-5">
+            <div
+                class="d-flex justify-content-between
+                       align-items-center gap-3 mb-4"
+            >
+                <div>
+                    <h2 class="fs-5 mb-1">
+                        Filtros
+                    </h2>
+
+                    <p class="text-muted small mb-0">
+                        Refine os atendimentos exibidos abaixo.
+                    </p>
                 </div>
 
-                <div class="col-md-5">
-                    <label class="form-label text-muted">Filtrar por status</label>
-                    <select name="status" class="form-select">
-                        <option value="">Todos</option>
+                <a
+                    href="{% url 'dashboard_barbeiro' %}"
+                    class="btn btn-outline-light btn-sm"
+                >
+                    Limpar
+                </a>
+            </div>
+
+            <form method="get" class="row g-3">
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label class="form-label">
+                        Data inicial
+                    </label>
+
+                    <input
+                        type="date"
+                        name="data_inicio"
+                        class="form-control"
+                        value="{{ data_inicio }}"
+                    >
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label class="form-label">
+                        Data final
+                    </label>
+
+                    <input
+                        type="date"
+                        name="data_fim"
+                        class="form-control"
+                        value="{{ data_fim }}"
+                    >
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label class="form-label">
+                        Status
+                    </label>
+
+                    <select
+                        name="status"
+                        class="form-select"
+                    >
+                        <option value="">
+                            Todos os status
+                        </option>
+
                         {% for value, label in status_choices %}
-                            <option value="{{ value }}" {% if status_filtro == value %}selected{% endif %}>
+                            <option
+                                value="{{ value }}"
+                                {% if status_filtro == value %}
+                                    selected
+                                {% endif %}
+                            >
                                 {{ label }}
                             </option>
                         {% endfor %}
                     </select>
                 </div>
 
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary-barber w-100">Filtrar</button>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label class="form-label">
+                        Serviço
+                    </label>
+
+                    <select
+                        name="servico"
+                        class="form-select"
+                    >
+                        <option value="">
+                            Todos os serviços
+                        </option>
+
+                        {% for servico in servicos %}
+                            <option
+                                value="{{ servico.id }}"
+                                {% if servico_filtro == servico.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ servico.nome }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 col-lg-9">
+                    <label class="form-label">
+                        Cliente
+                    </label>
+
+                    <input
+                        type="search"
+                        name="cliente"
+                        class="form-control"
+                        value="{{ cliente_filtro }}"
+                        placeholder="Nome, usuário ou telefone"
+                    >
+                </div>
+
+                <div class="col-12 col-lg-3 d-flex align-items-end">
+                    <button
+                        type="submit"
+                        class="btn btn-primary-barber w-100"
+                    >
+                        Aplicar filtros
+                    </button>
                 </div>
             </form>
-        </div>
+        </section>
 
-        <div class="card custom-card overflow-hidden border-0">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-dark table-hover align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th class="p-4 text-uppercase fs-6" style="color: var(--primary);">Cliente</th>
-                                <th class="p-4 text-uppercase fs-6" style="color: var(--primary);">Barbeiro</th>
-                                <th class="p-4 text-uppercase fs-6" style="color: var(--primary);">Serviço</th>
-                                <th class="p-4 text-uppercase fs-6" style="color: var(--primary);">Horário</th>
-                                <th class="p-4 text-uppercase fs-6 text-center" style="color: var(--primary);">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for agendamento in agendamentos %}
-                            <tr>
-                                <td class="p-4">
-                                    <div class="fw-bold text-white fs-5">{{ agendamento.cliente.username }}</div>
-                                    <small class="text-muted" style="font-size: 0.75rem;">ID do usuário: #{{ agendamento.cliente.id }}</small>
-                                </td>
+        <!-- AGENDA DE HOJE -->
+        <section class="dashboard-section mb-5">
+            <div class="dashboard-section-header">
+                <div>
+                    <span class="section-marker"></span>
 
-                                <td class="p-4 text-white-50">
-                                    {% if agendamento.barbeiro %}
-                                        {{ agendamento.barbeiro.nome_publico }}
-                                    {% else %}
-                                        Sem barbeiro
-                                    {% endif %}
-                                </td>
-
-                                <td class="p-4 text-white-50">
-                                    {{ agendamento.servico.nome }}
-                                </td>
-
-                                <td class="p-4 fw-medium text-white fs-5">
-                                    {{ agendamento.data_hora|date:"d/m/Y \à\s H:i" }}
-                                </td>
-
-                                <td class="p-4">
-                                    <form method="POST" class="d-flex justify-content-center">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="agendamento_id" value="{{ agendamento.id }}">
-
-                                        <select name="status"
-                                                class="status-select
-                                                {% if agendamento.status == 'confirmado' %}status-confirmado
-                                                {% elif agendamento.status == 'concluido' %}status-concluido
-                                                {% elif agendamento.status == 'cancelado' %}status-cancelado
-                                                {% else %}status-pendente{% endif %}"
-                                                onchange="this.form.submit()">
-
-                                            {% for value, label in status_choices %}
-                                                <option value="{{ value }}" {% if agendamento.status == value %}selected{% endif %}>
-                                                    {{ label }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center text-muted py-5">
-                                    <p class="mb-0">Nenhum agendamento encontrado.</p>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <h2 class="dashboard-section-title">
+                        Agenda de hoje
+                    </h2>
                 </div>
+
+                <span class="dashboard-count">
+                    {{ agenda_hoje|length }}
+                </span>
             </div>
-        </div>
+
+            {% include "agendamentos/partials/tabela_agendamentos.html" with lista=agenda_hoje empty_message="Nenhum agendamento para hoje." %}
+        </section>
+
+        <!-- PRÓXIMOS -->
+        <section class="dashboard-section mb-5">
+            <div class="dashboard-section-header">
+                <div>
+                    <span class="section-marker section-marker-blue"></span>
+
+                    <h2 class="dashboard-section-title">
+                        Próximos agendamentos
+                    </h2>
+                </div>
+
+                <span class="dashboard-count">
+                    {{ proximos_agendamentos|length }}
+                </span>
+            </div>
+
+            {% include "agendamentos/partials/tabela_agendamentos.html" with lista=proximos_agendamentos empty_message="Nenhum próximo agendamento encontrado." %}
+        </section>
+
+        <!-- HISTÓRICO -->
+        <section class="dashboard-section">
+            <div class="dashboard-section-header">
+                <div>
+                    <span class="section-marker section-marker-muted"></span>
+
+                    <h2 class="dashboard-section-title">
+                        Histórico
+                    </h2>
+                </div>
+
+                <span class="dashboard-count">
+                    {{ historico|length }}
+                </span>
+            </div>
+
+            {% include "agendamentos/partials/tabela_agendamentos.html" with lista=historico empty_message="O histórico está vazio." %}
+        </section>
 
     </div>
 </body>

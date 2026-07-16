@@ -4,7 +4,11 @@ from . import views
 
 
 urlpatterns = [
-    path("", views.inicio, name="inicio"),
+    path(
+        "",
+        views.inicio,
+        name="inicio"
+    ),
 
     path(
         "cadastro/",
@@ -37,9 +41,21 @@ urlpatterns = [
     ),
 
     path(
+        "meus-agendamentos/<int:agendamento_id>/reagendar/",
+        views.reagendar_agendamento,
+        name="reagendar_agendamento"
+    ),
+
+    path(
         "meus-agendamentos/<int:agendamento_id>/cancelar/",
         views.cancelar_agendamento,
         name="cancelar_agendamento"
+    ),
+
+    path(
+        "barbeiro/configuracoes/",
+        views.configuracoes_barbeiro,
+        name="configuracoes_barbeiro"
     ),
 
     path(
@@ -47,4 +63,5 @@ urlpatterns = [
         views.dashboard_barbeiro,
         name="dashboard_barbeiro"
     ),
+    
 ]

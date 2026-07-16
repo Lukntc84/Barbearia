@@ -1,0 +1,272 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Configurações | Barber Shop</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'agendamentos/css/style.css' %}"
+    >
+</head>
+
+<body>
+    {% include "agendamentos/partials/navbar.html" %}
+
+    <main class="container py-5">
+        <header class="config-header mb-5">
+            <span class="dashboard-eyebrow">
+                Administração
+            </span>
+
+            <h1 class="dashboard-title mb-2">
+                Configurações
+            </h1>
+
+            <p class="dashboard-subtitle mb-0">
+                Gerencie horários e regras de atendimento de
+                {{ barbeiro.nome_publico }}.
+            </p>
+        </header>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div
+                    class="alert
+                    {% if message.tags == 'success' %}
+                        alert-success
+                    {% elif message.tags == 'warning' %}
+                        alert-warning
+                    {% else %}
+                        alert-danger
+                    {% endif %}"
+                >
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if request.user.is_staff or request.user.is_superuser %}
+            <section class="card custom-card p-4 mb-4">
+                <form method="get">
+                    <label class="form-label">
+                        Barbeiro
+                    </label>
+
+                    <select
+                        name="barbeiro"
+                        class="form-select"
+                        onchange="this.form.submit()"
+                    >
+                        {% for item in barbeiros_disponiveis %}
+                            <option
+                                value="{{ item.id }}"
+                                {% if item.id == barbeiro.id %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ item.nome_publico }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </section>
+        {% endif %}
+
+        <section class="card custom-card p-4 p-md-5 mb-4">
+            <div class="config-section-heading">
+                <div>
+                    <h2>Regras gerais</h2>
+
+                    <p>
+                        Defina antecedências e o período disponível para reservas.
+                    </p>
+                </div>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="acao"
+                    value="salvar_configuracoes"
+                >
+
+                {% if request.user.is_staff or request.user.is_superuser %}
+                    <input
+                        type="hidden"
+                        name="barbeiro_id"
+                        value="{{ barbeiro.id }}"
+                    >
+                {% endif %}
+
+                <div class="row g-4">
+                    {% for field in configuracao_form %}
+                        <div
+                            class="
+                            {% if field.name == 'permitir_agendamento_mesmo_dia' %}
+                                col-12
+                            {% else %}
+                                col-12 col-md-6
+                            {% endif %}"
+                        >
+                            {% if field.name == "permitir_agendamento_mesmo_dia" %}
+                                <div class="config-switch">
+                                    {{ field }}
+
+                                    <label
+                                        for="{{ field.id_for_label }}"
+                                    >
+                                        {{ field.label }}
+                                    </label>
+                                </div>
+                            {% else %}
+                                <label
+                                    for="{{ field.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    {{ field.label }}
+                                </label>
+
+                                {{ field }}
+                            {% endif %}
+
+                            {% if field.help_text %}
+                                <small class="config-help">
+                                    {{ field.help_text }}
+                                </small>
+                            {% endif %}
+
+                            {% for error in field.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary-barber mt-4"
+                >
+                    Salvar regras gerais
+                </button>
+            </form>
+        </section>
+
+        <section class="card custom-card p-4 p-md-5">
+            <div class="config-section-heading">
+                <div>
+                    <h2>Horários da semana</h2>
+
+                    <p>
+                        Ative os dias trabalhados e configure início, término e intervalo.
+                    </p>
+                </div>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="acao"
+                    value="salvar_horarios"
+                >
+
+                {% if request.user.is_staff or request.user.is_superuser %}
+                    <input
+                        type="hidden"
+                        name="barbeiro_id"
+                        value="{{ barbeiro.id }}"
+                    >
+                {% endif %}
+
+                <div class="weekly-schedule">
+                    {% for item in formularios_horarios %}
+                        <article class="weekly-day-card">
+                            <div class="weekly-day-header">
+                                <strong>
+                                    {{ item.dia }}
+                                </strong>
+
+                                <div class="form-check form-switch">
+                                    {{ item.form.ativo }}
+
+                                    <label
+                                        class="form-check-label"
+                                        for="{{ item.form.ativo.id_for_label }}"
+                                    >
+                                        Atende
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-6 col-lg-4">
+                                    <label class="form-label">
+                                        Início
+                                    </label>
+
+                                    {{ item.form.hora_inicio }}
+                                </div>
+
+                                <div class="col-6 col-lg-4">
+                                    <label class="form-label">
+                                        Término
+                                    </label>
+
+                                    {{ item.form.hora_fim }}
+                                </div>
+
+                                <div class="col-12 col-lg-4">
+                                    <label class="form-label">
+                                        Intervalo
+                                    </label>
+
+                                    <div class="input-group">
+                                        {{ item.form.intervalo_minutos }}
+
+                                        <span class="input-group-text">
+                                            min
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% for field in item.form %}
+                                {% for error in field.errors %}
+                                    <div class="text-danger small mt-2">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+                        </article>
+                    {% endfor %}
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary-barber mt-4"
+                >
+                    Salvar horários da semana
+                </button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

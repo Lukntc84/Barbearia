@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{% static 'agendamentos/css/style.css' %}">
 </head>
 <body>
+    {% include "agendamentos/partials/navbar.html" %}
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-8 col-lg-6">
@@ -16,7 +17,7 @@
                 <div class="card custom-card p-4">
                     <div class="text-center mb-4">
                         <h2 class="card-title mb-1">BARBER SHOP</h2>
-                        <p class="text-muted small">Escolha o melhor momento para o seu estilo</p>
+                        <p class="small">Escolha o melhor momento para o seu estilo</p>
                     </div>
 
                     {% if messages %}
@@ -28,7 +29,7 @@
                     {% endif %}
 
                     <form method="GET" class="mb-4">
-                        <label for="barbeiro" class="form-label fw-medium text-muted">1. Escolha o Barbeiro:</label>
+                        <label for="barbeiro" class="form-label fw-medium">1. Escolha o Barbeiro:</label>
                         <select name="barbeiro" id="barbeiro" class="form-select form-select-lg mb-3" onchange="this.form.submit()" required>
                             <option value="">Selecione um barbeiro...</option>
                             {% for barbeiro in barbeiros %}
@@ -38,9 +39,16 @@
                             {% endfor %}
                         </select>
 
-                        <label for="data" class="form-label fw-medium text-muted">2. Selecione a Data:</label>
-                        <input type="date" name="data" id="data" class="form-control form-control-lg"
-                               value="{{ data_selecionada }}" onchange="this.form.submit()">
+                        <label for="data" class="form-label fw-medium">2. Selecione a Data:</label>
+                        <input
+                            type="date"
+                            name="data"
+                            id="data"
+                            class="form-control form-control-lg"
+                            value="{{ data_selecionada }}"
+                            min="{{ hoje }}"
+                            onchange="this.form.submit()"
+                        >
                     </form>
 
                     <div style="border-top: 1px dashed var(--border-color);" class="my-4"></div>
@@ -53,7 +61,7 @@
                         {% endif %}
 
                         <div class="mb-4">
-                            <label for="servico" class="form-label fw-medium text-muted">3. Escolha o Serviço:</label>
+                            <label for="servico" class="form-label fw-medium">3. Escolha o Serviço:</label>
                             <select name="servico" id="servico" class="form-select form-select-lg" required>
                                 <option value="">Clique para selecionar...</option>
                                 {% for servico in servicos %}
@@ -65,11 +73,18 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-medium text-muted d-block mb-3">4. Escolha o Horário:</label>
+                            <label class="form-label fw-medium d-block mb-3">4. Escolha o Horário:</label>
 
                             {% if not barbeiro_selecionado %}
                                 <div class="alert alert-warning">
                                     Selecione um barbeiro para ver os horários disponíveis.
+                                </div>
+                            {% endif %}
+
+                            {% if barbeiro_selecionado and not horario_funcionamento %}
+                                <div class="alert alert-secondary">
+                                    {{ barbeiro_selecionado.nome_publico }}
+                                    não atende nesta data.
                                 </div>
                             {% endif %}
 
@@ -84,10 +99,23 @@
                                                {% if not slot.disponivel %}disabled{% endif %}
                                                required>
 
-                                        <label class="slot-label w-100 h-100 d-flex flex-column align-items-center justify-content-center text-center" for="slot_{{ slot.hora }}">
+                                        <label
+                                            class="slot-label w-100 h-100 d-flex flex-column align-items-center justify-content-center text-center
+                                            {% if slot.disponivel %}
+                                                slot-livre
+                                            {% elif slot.motivo == 'Ocupado' %}
+                                                slot-ocupado
+                                            {% elif slot.motivo == 'Passou' %}
+                                                slot-passou
+                                            {% endif %}"
+                                            for="slot_{{ slot.hora }}"
+                                        >
                                             <span class="fs-5">{{ slot.hora }}</span>
+
                                             {% if not slot.disponivel %}
-                                                <small style="font-size: 0.65rem; color: #fa4d4d;">{{ slot.motivo }}</small>
+                                                <small class="mt-1">
+                                                    {{ slot.motivo }}
+                                                </small>
                                             {% endif %}
                                         </label>
                                     </div>

@@ -1,0 +1,128 @@
+<div class="card custom-card overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle">
+            <thead>
+                <tr>
+                    <th class="p-3">Cliente</th>
+                    <th class="p-3">Barbeiro</th>
+                    <th class="p-3">Serviço</th>
+                    <th class="p-3">Data e horário</th>
+                    <th class="p-3">Valor</th>
+                    <th class="p-3 text-center">Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for agendamento in lista %}
+                    <tr>
+                        <td class="p-3" data-label="Cliente">
+                            <div class="dashboard-client">
+                                {{ agendamento.cliente.first_name|default:agendamento.cliente.username }}
+                            </div>
+
+                            <small class="text-muted">
+                                @{{ agendamento.cliente.username }}
+                            </small>
+                        </td>
+
+                        <td
+                            class="p-3 text-white-50"
+                            data-label="Barbeiro"
+                        >
+                            {% if agendamento.barbeiro %}
+                                {{ agendamento.barbeiro.nome_publico }}
+                            {% else %}
+                                Não informado
+                            {% endif %}
+                        </td>
+
+                        <td
+                            class="p-3 text-white-50"
+                            data-label="Serviço"
+                        >
+                            {{ agendamento.servico.nome }}
+                        </td>
+
+                        <td
+                            class="p-3"
+                            data-label="Horário"
+                        >
+                            <strong>
+                                {{ agendamento.data_hora|date:"d/m/Y" }}
+                            </strong>
+
+                            <div class="text-muted small">
+                                {{ agendamento.data_hora|date:"H:i" }}
+                            </div>
+                        </td>
+
+                        <td
+                            class="p-3"
+                            data-label="Valor"
+                        >
+                            R$ {{ agendamento.servico.preco|floatformat:2 }}
+                        </td>
+
+                        <td class="p-3" data-label="Status">
+                            <form
+                                method="post"
+                                class="d-flex justify-content-center"
+                            >
+                                {% csrf_token %}
+
+                                <input
+                                    type="hidden"
+                                    name="agendamento_id"
+                                    value="{{ agendamento.id }}"
+                                >
+
+                                <select
+                                    name="status"
+                                    class="status-select
+                                    {% if agendamento.status == 'confirmado' %}
+                                        status-confirmado
+                                    {% elif agendamento.status == 'em_atendimento' %}
+                                        status-atendimento
+                                    {% elif agendamento.status == 'concluido' %}
+                                        status-concluido
+                                    {% elif agendamento.status == 'cancelado' %}
+                                        status-cancelado
+                                    {% elif agendamento.status == 'nao_compareceu' %}
+                                        status-falta
+                                    {% else %}
+                                        status-pendente
+                                    {% endif %}"
+                                    onchange="this.form.submit()"
+                                >
+                                    {% for value, label in status_choices %}
+                                        <option
+                                            value="{{ value }}"
+                                            {% if agendamento.status == value %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td
+                            colspan="6"
+                            class="text-center py-5"
+                        >
+                            <div class="dashboard-empty">
+                                <strong>
+                                    {{ empty_message }}
+                                </strong>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

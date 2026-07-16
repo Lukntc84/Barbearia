@@ -1,0 +1,35 @@
+<nav class="barber-navbar">
+  <div class="barber-navbar-inner">
+    <a href="{% url 'inicio' %}" class="barber-brand">BARBER SHOP</a>
+
+    <nav class="barber-navbar">
+      <div class="barber-navbar-inner">
+        <a href="{% url 'inicio' %}" class="barber-brand">BARBER SHOP</a>
+
+        <div class="barber-nav-links">
+          {% if request.user.is_authenticated %}
+            {% if request.user.is_staff or request.user.is_superuser or request.user.barbeiro_perfil %}
+              <a href="{% url 'dashboard_barbeiro' %}" class="barber-nav-link">Painel</a>
+
+              <a href="{% url 'configuracoes_barbeiro' %}" class="barber-nav-link">Configurações</a>
+            {% else %}
+              <a href="{% url 'agendar_cliente' %}" class="barber-nav-link">Agendar</a>
+
+              <a href="{% url 'meus_agendamentos' %}" class="barber-nav-link">Meus agendamentos</a>
+            {% endif %}
+
+            <form method="post" action="{% url 'logout_cliente' %}" class="barber-nav-form">
+              {% csrf_token %}
+
+              <button type="submit" class="barber-nav-logout">Sair</button>
+            </form>
+          {% else %}
+            <a href="{% url 'login_cliente' %}" class="barber-nav-link">Entrar</a>
+
+            <a href="{% url 'cadastro_cliente' %}" class="barber-nav-primary">Criar conta</a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+  </div>
+</nav>

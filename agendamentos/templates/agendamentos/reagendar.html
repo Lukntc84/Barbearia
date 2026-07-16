@@ -1,0 +1,271 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Reagendar atendimento | Barber Shop</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'agendamentos/css/style.css' %}"
+    >
+</head>
+
+<body>
+    {% include "agendamentos/partials/navbar.html" %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-9 col-lg-7">
+
+                <div class="mb-4">
+                    <a
+                        href="{% url 'meus_agendamentos' %}"
+                        class="btn btn-outline-light"
+                    >
+                        ← Voltar
+                    </a>
+                </div>
+
+                <section class="card custom-card p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <span class="dashboard-eyebrow">
+                            Alterar atendimento
+                        </span>
+
+                        <h1 class="card-title fs-2 mb-2">
+                            Reagendar horário
+                        </h1>
+
+                        <p class="text-muted mb-0">
+                            Escolha uma nova data e um novo horário.
+                        </p>
+                    </div>
+
+                    <div class="reagendamento-atual mb-4">
+                        <span>Agendamento atual</span>
+
+                        <strong>
+                            {{ agendamento.data_hora|date:"d/m/Y" }}
+                            às
+                            {{ horario_atual_agendamento }}
+                        </strong>
+
+                        <small>
+                            {{ agendamento.servico.nome }}
+                            com
+                            {% if agendamento.barbeiro %}
+                                {{ agendamento.barbeiro.nome_publico }}
+                            {% else %}
+                                barbeiro não informado
+                            {% endif %}
+                        </small>
+                    </div>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div
+                                class="alert
+                                {% if message.tags == 'success' %}
+                                    alert-success
+                                {% elif message.tags == 'warning' %}
+                                    alert-warning
+                                {% else %}
+                                    alert-danger
+                                {% endif %}"
+                            >
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Escolha barbeiro, serviço e data -->
+                    <form method="get" class="mb-4">
+                        <div class="mb-3">
+                            <label
+                                for="barbeiro"
+                                class="form-label"
+                            >
+                                1. Barbeiro
+                            </label>
+
+                            <select
+                                name="barbeiro"
+                                id="barbeiro"
+                                class="form-select"
+                                onchange="this.form.submit()"
+                            >
+                                {% for barbeiro in barbeiros %}
+                                    <option
+                                        value="{{ barbeiro.id }}"
+                                        {% if barbeiro_selecionado and barbeiro.id == barbeiro_selecionado.id %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ barbeiro.nome_publico }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label
+                                for="servico"
+                                class="form-label"
+                            >
+                                2. Serviço
+                            </label>
+
+                            <select
+                                name="servico"
+                                id="servico"
+                                class="form-select"
+                                onchange="this.form.submit()"
+                            >
+                                {% for servico in servicos %}
+                                    <option
+                                        value="{{ servico.id }}"
+                                        {% if servico_selecionado and servico.id == servico_selecionado.id %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ servico.nome }}
+                                        — R$ {{ servico.preco }}
+                                        ({{ servico.duracao_minutos }} min)
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label
+                                for="data"
+                                class="form-label"
+                            >
+                                3. Nova data
+                            </label>
+
+                            <input
+                                type="date"
+                                name="data"
+                                id="data"
+                                class="form-control"
+                                value="{{ data_selecionada }}"
+                                min="{{ hoje }}"
+                                onchange="this.form.submit()"
+                            >
+                        </div>
+                    </form>
+
+                    <div class="reagendamento-divider"></div>
+
+                    <!-- Confirmação do novo horário -->
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <input
+                            type="hidden"
+                            name="barbeiro"
+                            value="{{ barbeiro_selecionado.id }}"
+                        >
+
+                        <input
+                            type="hidden"
+                            name="servico"
+                            value="{{ servico_selecionado.id }}"
+                        >
+
+                        <input
+                            type="hidden"
+                            name="data"
+                            value="{{ data_selecionada }}"
+                        >
+
+                        <label class="form-label d-block mb-3">
+                            4. Novo horário
+                        </label>
+
+                        {% if not horario_funcionamento %}
+                            <div class="alert alert-secondary">
+                                O barbeiro selecionado não atende nesta data.
+                            </div>
+                        {% endif %}
+
+                        {% if horario_funcionamento and not slots %}
+                            <div class="alert alert-secondary">
+                                Não há horários disponíveis nesta data.
+                            </div>
+                        {% endif %}
+
+                        <div class="row row-cols-2 row-cols-md-3 g-2">
+                            {% for slot in slots %}
+                                <div class="col">
+                                    <input
+                                        type="radio"
+                                        class="btn-check"
+                                        name="hora_slot"
+                                        id="reagendar_slot_{{ slot.hora }}"
+                                        value="{{ slot.hora }}"
+                                        {% if not slot.disponivel %}
+                                            disabled
+                                        {% endif %}
+                                        required
+                                    >
+
+                                    <label
+                                        class="slot-label w-100 h-100
+                                               d-flex flex-column
+                                               align-items-center
+                                               justify-content-center
+                                               text-center
+                                        {% if slot.disponivel %}
+                                            slot-livre
+                                        {% elif slot.motivo == 'Ocupado' %}
+                                            slot-ocupado
+                                        {% else %}
+                                            slot-passou
+                                        {% endif %}"
+                                        for="reagendar_slot_{{ slot.hora }}"
+                                    >
+                                        <span class="fs-5">
+                                            {{ slot.hora }}
+                                        </span>
+
+                                        {% if not slot.disponivel %}
+                                            <small class="mt-1">
+                                                {{ slot.motivo }}
+                                            </small>
+                                        {% endif %}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary-barber
+                                   btn-lg w-100 mt-4"
+                            {% if not horario_funcionamento or not slots %}
+                                disabled
+                            {% endif %}
+                        >
+                            Confirmar reagendamento
+                        </button>
+                    </form>
+                </section>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
