@@ -260,3 +260,49 @@ class Agendamento(models.Model):
                     f"com {agendado.barbeiro.nome_publico} "
                     f"({inicio_outro.strftime('%H:%M')} até {fim_outro.strftime('%H:%M')})."
                 )
+
+class Notificacao(models.Model):
+    TIPO_CHOICES = [
+        ("novo_agendamento", "Novo agendamento"),
+        ("cancelamento", "Cancelamento"),
+        ("reagendamento", "Reagendamento"),
+        ("status", "Alteração de status"),
+        ("sistema", "Sistema"),
+    ]
+
+    usuario = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="notificacoes"
+    )
+
+    agendamento = models.ForeignKey(
+        Agendamento,
+        on_delete=models.CASCADE,
+        related_name="notificacoes",
+        null=True,
+        blank=True
+    )
+
+    titulo = models.CharField(max_length=120)
+
+    mensagem = models.TextField()
+
+    tipo = models.CharField(
+        max_length=30,
+        choices=TIPO_CHOICES,
+        default="sistema"
+    )
+
+    lida = models.BooleanField(default=False)
+
+    criada_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-criada_em"]
+        verbose_name = "Notificação"
+        verbose_name_plural = "Notificações"
+
+    def __str__(self):
+        status = "Lida" if self.lida else "Não lida"
+        return f"{self.titulo} - {self.usuario.username} - {status}"

@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Notificações | Barber Shop</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'agendamentos/css/style.css' %}"
+    >
+</head>
+
+<body>
+    {% include "agendamentos/partials/navbar.html" %}
+
+    <main class="container py-5">
+        <header class="client-profile-header mb-4">
+            <div>
+                <span class="dashboard-eyebrow">
+                    Central
+                </span>
+
+                <h1 class="dashboard-title mb-2">
+                    Notificações
+                </h1>
+
+                <p class="dashboard-subtitle mb-0">
+                    Acompanhe novidades, alterações de status, cancelamentos e reagendamentos.
+                </p>
+            </div>
+
+            <div class="client-contact-card">
+                <span>Não lidas</span>
+
+                <strong>
+                    {{ total_nao_lidas }}
+                </strong>
+
+                <small>
+                    Notificações pendentes.
+                </small>
+            </div>
+        </header>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div
+                    class="alert
+                    {% if message.tags == 'success' %}
+                        alert-success
+                    {% elif message.tags == 'warning' %}
+                        alert-warning
+                    {% else %}
+                        alert-danger
+                    {% endif %}"
+                >
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <section class="notification-toolbar mb-4">
+            <div class="notification-filters">
+                <a
+                    href="{% url 'notificacoes_usuario' %}"
+                    class="btn {% if not filtro %}btn-primary-barber{% else %}btn-outline-light{% endif %}"
+                >
+                    Todas
+                </a>
+
+                <a
+                    href="{% url 'notificacoes_usuario' %}?filtro=nao_lidas"
+                    class="btn {% if filtro == 'nao_lidas' %}btn-primary-barber{% else %}btn-outline-light{% endif %}"
+                >
+                    Não lidas
+                </a>
+            </div>
+
+            <form
+                method="post"
+                action="{% url 'notificacoes_marcar_todas_lidas' %}"
+            >
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-outline-light"
+                >
+                    Marcar todas como lidas
+                </button>
+            </form>
+        </section>
+
+        <section class="notifications-list">
+            {% for notificacao in notificacoes %}
+                <article
+                    class="notification-card {% if not notificacao.lida %}notification-unread{% endif %}"
+                >
+                    <div class="notification-content">
+                        <div class="notification-header">
+                            <span class="notification-type">
+                                {{ notificacao.get_tipo_display }}
+                            </span>
+
+                            <small>
+                                {{ notificacao.criada_em|date:"d/m/Y H:i" }}
+                            </small>
+                        </div>
+
+                        <h2>
+                            {{ notificacao.titulo }}
+                        </h2>
+
+                        <p>
+                            {{ notificacao.mensagem }}
+                        </p>
+
+                        {% if notificacao.agendamento %}
+                            <div class="notification-meta">
+                                <span>
+                                    Serviço:
+                                    {{ notificacao.agendamento.servico.nome }}
+                                </span>
+
+                                <span>
+                                    Data:
+                                    {{ notificacao.agendamento.data_hora|date:"d/m/Y H:i" }}
+                                </span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="notification-actions">
+                        {% if not notificacao.lida %}
+                            <form
+                                method="post"
+                                action="{% url 'notificacao_marcar_lida' notificacao.id %}"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-sm btn-primary-barber"
+                                >
+                                    Marcar como lida
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="notification-read">
+                                Lida
+                            </span>
+                        {% endif %}
+                    </div>
+                </article>
+            {% empty %}
+                <div class="custom-card p-5 text-center">
+                    <div class="dashboard-empty">
+                        <strong>
+                            Nenhuma notificação encontrada.
+                        </strong>
+                    </div>
+                </div>
+            {% endfor %}
+        </section>
+    </main>
+</body>
+</html>

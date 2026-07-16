@@ -28,28 +28,72 @@
                         {% endfor %}
                     {% endif %}
 
-                    <form method="GET" class="mb-4">
-                        <label for="barbeiro" class="form-label fw-medium">1. Escolha o Barbeiro:</label>
-                        <select name="barbeiro" id="barbeiro" class="form-select form-select-lg mb-3" onchange="this.form.submit()" required>
-                            <option value="">Selecione um barbeiro...</option>
-                            {% for barbeiro in barbeiros %}
-                                <option value="{{ barbeiro.id }}" {% if barbeiro_selecionado and barbeiro.id == barbeiro_selecionado.id %}selected{% endif %}>
-                                    {{ barbeiro.nome_publico }}
-                                </option>
-                            {% endfor %}
-                        </select>
+                        <form method="GET" class="mb-4">
+                            <label for="barbeiro" class="form-label fw-medium">
+                                1. Escolha o Barbeiro:
+                            </label>
 
-                        <label for="data" class="form-label fw-medium">2. Selecione a Data:</label>
-                        <input
-                            type="date"
-                            name="data"
-                            id="data"
-                            class="form-control form-control-lg"
-                            value="{{ data_selecionada }}"
-                            min="{{ hoje }}"
-                            onchange="this.form.submit()"
-                        >
-                    </form>
+                            <select
+                                name="barbeiro"
+                                id="barbeiro"
+                                class="form-select form-select-lg mb-3"
+                                onchange="this.form.submit()"
+                                required
+                            >
+                                <option value="">Selecione um barbeiro...</option>
+
+                                {% for barbeiro in barbeiros %}
+                                    <option
+                                        value="{{ barbeiro.id }}"
+                                        {% if barbeiro_selecionado and barbeiro.id == barbeiro_selecionado.id %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ barbeiro.nome_publico }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                            <label for="data" class="form-label fw-medium">
+                                2. Selecione a Data:
+                            </label>
+
+                            <input
+                                type="date"
+                                name="data"
+                                id="data"
+                                class="form-control form-control-lg"
+                                value="{{ data_selecionada }}"
+                                min="{{ hoje }}"
+                                onchange="this.form.submit()"
+                            >
+
+                            <label for="servico" class="form-label fw-medium mt-3">
+                                3. Escolha o Serviço:
+                            </label>
+
+                            <select
+                                name="servico"
+                                id="servico"
+                                class="form-select form-select-lg"
+                                onchange="this.form.submit()"
+                                required
+                            >
+                                <option value="">Clique para selecionar...</option>
+
+                                {% for servico in servicos %}
+                                    <option
+                                        value="{{ servico.id }}"
+                                        {% if servico_selecionado and servico.id == servico_selecionado.id %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ servico.nome }} — R$ {{ servico.preco }}
+                                        ({{ servico.duracao_minutos }} min)
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </form>
 
                     <div style="border-top: 1px dashed var(--border-color);" class="my-4"></div>
 
@@ -61,30 +105,26 @@
                         {% endif %}
 
                         <div class="mb-4">
-                            <label for="servico" class="form-label fw-medium">3. Escolha o Serviço:</label>
-                            <select name="servico" id="servico" class="form-select form-select-lg" required>
-                                <option value="">Clique para selecionar...</option>
-                                {% for servico in servicos %}
-                                    <option value="{{ servico.id }}">
-                                        {{ servico.nome }} — R$ {{ servico.preco }} ({{ servico.duracao_minutos }} min)
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label fw-medium d-block mb-3">4. Escolha o Horário:</label>
+                            <label class="form-label fw-medium d-block mb-3">
+                                4. Escolha o Horário:
+                            </label>
 
                             {% if not barbeiro_selecionado %}
                                 <div class="alert alert-warning">
                                     Selecione um barbeiro para ver os horários disponíveis.
                                 </div>
-                            {% endif %}
-
-                            {% if barbeiro_selecionado and not horario_funcionamento %}
+                            {% elif not servico_selecionado %}
+                                <div class="alert alert-warning">
+                                    Selecione um serviço para calcular os horários disponíveis.
+                                </div>
+                            {% elif barbeiro_selecionado and not horario_funcionamento %}
                                 <div class="alert alert-secondary">
                                     {{ barbeiro_selecionado.nome_publico }}
                                     não atende nesta data.
+                                </div>
+                            {% elif horario_funcionamento and not slots %}
+                                <div class="alert alert-secondary">
+                                    Nenhum horário disponível para esse serviço nesta data.
                                 </div>
                             {% endif %}
 
@@ -123,7 +163,13 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary-barber btn-lg w-100 py-3 mt-3 rounded-3 shadow" {% if not barbeiro_selecionado %}disabled{% endif %}>
+                        <button
+                            type="submit"
+                            class="btn btn-primary-barber btn-lg w-100 py-3 mt-3 rounded-3 shadow"
+                            {% if not barbeiro_selecionado or not servico_selecionado or not slots %}
+                                disabled
+                            {% endif %}
+                        >
                             Confirmar Agendamento
                         </button>
                     </form>

@@ -7,6 +7,7 @@ from .models import (
     Cliente,
     ConfiguracaoBarbeiro,
     HorarioFuncionamento,
+    Servico,
 )
 
 
@@ -193,4 +194,44 @@ class HorarioFuncionamentoForm(forms.ModelForm):
             "ativo": forms.CheckboxInput(attrs={
                 "class": "form-check-input",
             }),
+        }
+
+class ServicoForm(forms.ModelForm):
+    class Meta:
+        model = Servico
+
+        fields = [
+            "nome",
+            "preco",
+            "duracao_minutos",
+            "ativo",
+        ]
+
+        widgets = {
+            "nome": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Ex: Corte de cabelo",
+            }),
+            "preco": forms.NumberInput(attrs={
+                "class": "form-control",
+                "min": "0",
+                "step": "0.01",
+                "placeholder": "Ex: 45.00",
+            }),
+            "duracao_minutos": forms.NumberInput(attrs={
+                "class": "form-control",
+                "min": "5",
+                "step": "5",
+                "placeholder": "Ex: 30",
+            }),
+            "ativo": forms.CheckboxInput(attrs={
+                "class": "form-check-input",
+            }),
+        }
+
+        labels = {
+            "nome": "Nome do serviço",
+            "preco": "Preço",
+            "duracao_minutos": "Duração em minutos",
+            "ativo": "Serviço ativo",
         }

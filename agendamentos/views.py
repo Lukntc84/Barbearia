@@ -16,6 +16,7 @@ from .forms import (
     ConfiguracaoBarbeiroForm,
     HorarioFuncionamentoForm,
     LoginClienteForm,
+    ServicoForm,
 )
 
 from .models import (
@@ -25,6 +26,7 @@ from .models import (
     ConfiguracaoBarbeiro,
     HorarioFuncionamento,
     Servico,
+    Notificacao,
 )
 
 
@@ -69,7 +71,23 @@ def usuario_pode_gerenciar_barbeiro(user, barbeiro):
         barbeiro_usuario is not None
         and barbeiro_usuario.id == barbeiro.id
     )
+def criar_notificacao(
+    usuario,
+    titulo,
+    mensagem,
+    tipo="sistema",
+    agendamento=None
+):
+    if not usuario:
+        return None
 
+    return Notificacao.objects.create(
+        usuario=usuario,
+        titulo=titulo,
+        mensagem=mensagem,
+        tipo=tipo,
+        agendamento=agendamento,
+    )
 def cadastro_cliente(request):
     if request.user.is_authenticated:
         return redirect("inicio")
@@ -165,17 +183,26 @@ def logout_cliente(request):
 
 @login_required
 def agendar_cliente(request):
-    servicos = Servico.objects.filter(ativo=True).order_by("nome")
-    barbeiros = Barbeiro.objects.filter(ativo=True).order_by("nome_publico")
+    servicos = Servico.objects.filter(
+        ativo=True
+    ).order_by("nome")
+
+    barbeiros = Barbeiro.objects.filter(
+        ativo=True
+    ).order_by("nome_publico")
 
     data_str = request.GET.get("data") or request.POST.get("data")
     barbeiro_id = request.GET.get("barbeiro") or request.POST.get("barbeiro")
+    servico_id = request.GET.get("servico") or request.POST.get("servico")
 
     hoje = timezone.localdate()
 
     if data_str:
         try:
-            data_selecionada = datetime.strptime(data_str, "%Y-%m-%d").date()
+            data_selecionada = datetime.strptime(
+                data_str,
+                "%Y-%m-%d"
+            ).date()
         except ValueError:
             data_selecionada = hoje
     else:
@@ -183,46 +210,64 @@ def agendar_cliente(request):
 
     if data_selecionada < hoje:
         data_selecionada = hoje
-        messages.warning(request, "Não é possível selecionar uma data anterior a hoje.")
+
+        messages.warning(
+            request,
+            "Não é possível selecionar uma data anterior a hoje."
+        )
 
     barbeiro_selecionado = None
 
     if barbeiro_id:
         barbeiro_selecionado = Barbeiro.objects.filter(
             id=barbeiro_id,
-            ativo=True
+            ativo=True,
+        ).first()
+
+    servico_selecionado = None
+
+    if servico_id:
+        servico_selecionado = Servico.objects.filter(
+            id=servico_id,
+            ativo=True,
         ).first()
 
     if request.method == "POST":
-        servico_id = request.POST.get("servico")
         hora_str = request.POST.get("hora_slot")
 
         if not barbeiro_selecionado:
-            messages.error(request, "Selecione um barbeiro para continuar.")
+            messages.error(
+                request,
+                "Selecione um barbeiro para continuar."
+            )
 
-        elif not servico_id:
-            messages.error(request, "Selecione um serviço.")
+        elif not servico_selecionado:
+            messages.error(
+                request,
+                "Selecione um serviço."
+            )
 
         elif not hora_str:
-            messages.error(request, "Selecione um horário.")
+            messages.error(
+                request,
+                "Selecione um horário."
+            )
 
         else:
             try:
-                servico = Servico.objects.get(
-                    id=servico_id,
-                    ativo=True
-                )
-
-                hora_time = datetime.strptime(hora_str, "%H:%M").time()
+                hora_time = datetime.strptime(
+                    hora_str,
+                    "%H:%M"
+                ).time()
 
                 naive_datetime = datetime.combine(
                     data_selecionada,
-                    hora_time
+                    hora_time,
                 )
 
                 data_hora = timezone.make_aware(
                     naive_datetime,
-                    timezone.get_current_timezone()
+                    timezone.get_current_timezone(),
                 )
 
                 if data_hora <= timezone.now():
@@ -235,13 +280,25 @@ def agendar_cliente(request):
                     agendamento = Agendamento(
                         cliente=request.user,
                         barbeiro=barbeiro_selecionado,
-                        servico=servico,
+                        servico=servico_selecionado,
                         data_hora=data_hora,
                         status="pendente",
                     )
 
                     agendamento.full_clean()
                     agendamento.save()
+                    
+                    criar_notificacao(
+                        usuario=barbeiro_selecionado.user,
+                        titulo="Novo agendamento",
+                        mensagem=(
+                            f"{request.user.get_full_name() or request.user.username} "
+                            f"agendou {servico_selecionado.nome} para "
+                            f"{data_selecionada.strftime('%d/%m/%Y')} às {hora_str}."
+                        ),
+                        tipo="novo_agendamento",
+                        agendamento=agendamento,
+                    )
 
                     messages.success(
                         request,
@@ -255,15 +312,20 @@ def agendar_cliente(request):
 
                     return redirect("meus_agendamentos")
 
-            except Servico.DoesNotExist:
-                messages.error(request, "O serviço selecionado não está disponível.")
-
             except ValidationError as error:
-                mensagem = error.messages[0] if error.messages else str(error)
+                mensagem = (
+                    error.messages[0]
+                    if error.messages
+                    else str(error)
+                )
+
                 messages.error(request, mensagem)
 
             except ValueError:
-                messages.error(request, "O horário informado é inválido.")
+                messages.error(
+                    request,
+                    "O horário informado é inválido."
+                )
 
     agendamentos_do_dia = Agendamento.objects.none()
 
@@ -292,7 +354,11 @@ def agendar_cliente(request):
             .first()
         )
 
-    if barbeiro_selecionado and horario_funcionamento:
+    if (
+        barbeiro_selecionado
+        and servico_selecionado
+        and horario_funcionamento
+    ):
         inicio_expediente = timezone.make_aware(
             datetime.combine(
                 data_selecionada,
@@ -312,12 +378,12 @@ def agendar_cliente(request):
         horario_atual = inicio_expediente
 
         while horario_atual < fim_expediente:
-            proximo_slot = horario_atual + timedelta(
-                minutes=horario_funcionamento.intervalo_minutos
+            fim_atendimento = horario_atual + timedelta(
+                minutes=servico_selecionado.duracao_minutos
             )
 
-            # Não gera um slot que ultrapasse o horário final.
-            if proximo_slot > fim_expediente:
+            # Não mostra horário se o serviço não couber até o fim do expediente.
+            if fim_atendimento > fim_expediente:
                 break
 
             ja_passou = horario_atual <= timezone.now()
@@ -332,7 +398,7 @@ def agendar_cliente(request):
 
                 if (
                     horario_atual < fim_agendado
-                    and proximo_slot > inicio_agendado
+                    and fim_atendimento > inicio_agendado
                 ):
                     ocupado = True
                     break
@@ -352,18 +418,25 @@ def agendar_cliente(request):
                 "motivo": motivo,
             })
 
-            horario_atual = proximo_slot
+            # O intervalo define de quanto em quanto tempo aparecem os horários de início.
+            horario_atual += timedelta(
+                minutes=horario_funcionamento.intervalo_minutos
+            )
 
-    return render(request, "agendamentos/agendar.html", {
-        "servicos": servicos,
-        "barbeiros": barbeiros,
-        "barbeiro_selecionado": barbeiro_selecionado,
-        "horario_funcionamento": horario_funcionamento,
-        "slots": slots,
-        "data_selecionada": data_selecionada.strftime("%Y-%m-%d"),
-        "hoje": hoje.strftime("%Y-%m-%d"),
-    })
-
+    return render(
+        request,
+        "agendamentos/agendar.html",
+        {
+            "servicos": servicos,
+            "barbeiros": barbeiros,
+            "barbeiro_selecionado": barbeiro_selecionado,
+            "servico_selecionado": servico_selecionado,
+            "horario_funcionamento": horario_funcionamento,
+            "slots": slots,
+            "data_selecionada": data_selecionada.strftime("%Y-%m-%d"),
+            "hoje": hoje.strftime("%Y-%m-%d"),
+        },
+    )
 
 @login_required
 def meus_agendamentos(request):
@@ -654,6 +727,18 @@ def reagendar_agendamento(request, agendamento_id):
                                 "status",
                             ]
                         )
+                        
+                        criar_notificacao(
+                            usuario=barbeiro_selecionado.user,
+                            titulo="Agendamento reagendado",
+                            mensagem=(
+                                f"{request.user.get_full_name() or request.user.username} "
+                                f"reagendou para {data_selecionada.strftime('%d/%m/%Y')} "
+                                f"às {hora_str}, serviço: {servico_selecionado.nome}."
+                            ),
+                            tipo="reagendamento",
+                            agendamento=agendamento,
+                        )
 
                     messages.success(
                         request,
@@ -735,6 +820,19 @@ def cancelar_agendamento(request, agendamento_id):
 
     agendamento.status = "cancelado"
     agendamento.save(update_fields=["status"])
+    
+    if agendamento.barbeiro:
+        criar_notificacao(
+            usuario=agendamento.barbeiro.user,
+            titulo="Agendamento cancelado",
+            mensagem=(
+                f"{request.user.get_full_name() or request.user.username} "
+                f"cancelou o agendamento de {agendamento.servico.nome} "
+                f"do dia {timezone.localtime(agendamento.data_hora).strftime('%d/%m/%Y às %H:%M')}."
+            ),
+            tipo="cancelamento",
+            agendamento=agendamento,
+    )
 
     messages.success(
         request,
@@ -912,6 +1010,365 @@ def configuracoes_barbeiro(request):
     )
 
 @login_required
+def cliente_detalhe(request, cliente_id):
+    barbeiro = getattr(request.user, "barbeiro_perfil", None)
+    is_admin = request.user.is_staff or request.user.is_superuser
+
+    if not is_admin and not barbeiro:
+        messages.error(
+            request,
+            "Acesso restrito aos barbeiros."
+        )
+        return redirect("agendar_cliente")
+
+    cliente_user = get_object_or_404(
+        User.objects.select_related("cliente_perfil"),
+        id=cliente_id,
+    )
+
+    agendamentos = (
+        Agendamento.objects
+        .select_related(
+            "cliente",
+            "cliente__cliente_perfil",
+            "barbeiro",
+            "servico",
+        )
+        .filter(cliente=cliente_user)
+        .order_by("-data_hora")
+    )
+
+    # Barbeiro comum só vê o histórico daquele cliente com ele.
+    if barbeiro and not is_admin:
+        agendamentos = agendamentos.filter(barbeiro=barbeiro)
+
+    if not agendamentos.exists():
+        messages.error(
+            request,
+            "Nenhum histórico encontrado para este cliente."
+        )
+        return redirect("dashboard_barbeiro")
+
+    agora = timezone.now()
+
+    total_agendamentos = agendamentos.count()
+
+    total_concluidos = agendamentos.filter(
+        status="concluido"
+    ).count()
+
+    total_cancelados = agendamentos.filter(
+        status="cancelado"
+    ).count()
+
+    total_faltas = agendamentos.filter(
+        status="nao_compareceu"
+    ).count()
+
+    total_pendentes = agendamentos.filter(
+        status="pendente"
+    ).count()
+
+    total_confirmados = agendamentos.filter(
+        status="confirmado"
+    ).count()
+
+    proximos = agendamentos.filter(
+        data_hora__gte=agora
+    ).exclude(
+        status__in=[
+            "concluido",
+            "cancelado",
+            "nao_compareceu",
+        ]
+    )
+
+    historico = agendamentos.filter(
+        Q(data_hora__lt=agora)
+        | Q(
+            status__in=[
+                "concluido",
+                "cancelado",
+                "nao_compareceu",
+            ]
+        )
+    )
+
+    ultimo_atendimento = agendamentos.first()
+
+    ultimo_concluido = (
+        agendamentos
+        .filter(status="concluido")
+        .order_by("-data_hora")
+        .first()
+    )
+
+    servico_mais_recente = (
+        ultimo_atendimento.servico
+        if ultimo_atendimento
+        else None
+    )
+
+    faturamento_cliente = (
+        agendamentos
+        .filter(status="concluido")
+        .aggregate(total=Sum("servico__preco"))
+        .get("total")
+        or 0
+    )
+
+    cliente_perfil = getattr(
+        cliente_user,
+        "cliente_perfil",
+        None
+    )
+
+    return render(
+        request,
+        "agendamentos/cliente_detalhe.html",
+        {
+            "cliente_user": cliente_user,
+            "cliente_perfil": cliente_perfil,
+            "agendamentos": agendamentos,
+            "proximos": proximos,
+            "historico": historico,
+
+            "total_agendamentos": total_agendamentos,
+            "total_concluidos": total_concluidos,
+            "total_cancelados": total_cancelados,
+            "total_faltas": total_faltas,
+            "total_pendentes": total_pendentes,
+            "total_confirmados": total_confirmados,
+            "faturamento_cliente": faturamento_cliente,
+
+            "ultimo_atendimento": ultimo_atendimento,
+            "ultimo_concluido": ultimo_concluido,
+            "servico_mais_recente": servico_mais_recente,
+        },
+    )
+
+@login_required
+def servicos_painel(request):
+    barbeiro = getattr(request.user, "barbeiro_perfil", None)
+    is_admin = request.user.is_staff or request.user.is_superuser
+
+    if not is_admin and not barbeiro:
+        messages.error(
+            request,
+            "Acesso restrito aos barbeiros."
+        )
+        return redirect("agendar_cliente")
+
+    servicos = Servico.objects.all().order_by(
+        "-ativo",
+        "nome",
+    )
+
+    form = ServicoForm()
+
+    return render(
+        request,
+        "agendamentos/servicos.html",
+        {
+            "servicos": servicos,
+            "form": form,
+            "modo_edicao": False,
+        },
+    )
+
+
+@login_required
+def servico_novo(request):
+    barbeiro = getattr(request.user, "barbeiro_perfil", None)
+    is_admin = request.user.is_staff or request.user.is_superuser
+
+    if not is_admin and not barbeiro:
+        messages.error(
+            request,
+            "Acesso restrito aos barbeiros."
+        )
+        return redirect("agendar_cliente")
+
+    if request.method != "POST":
+        return redirect("servicos_painel")
+
+    form = ServicoForm(request.POST)
+
+    if form.is_valid():
+        form.save()
+
+        messages.success(
+            request,
+            "Serviço cadastrado com sucesso."
+        )
+
+        return redirect("servicos_painel")
+
+    servicos = Servico.objects.all().order_by(
+        "-ativo",
+        "nome",
+    )
+
+    return render(
+        request,
+        "agendamentos/servicos.html",
+        {
+            "servicos": servicos,
+            "form": form,
+            "modo_edicao": False,
+        },
+    )
+
+
+@login_required
+def servico_editar(request, servico_id):
+    barbeiro = getattr(request.user, "barbeiro_perfil", None)
+    is_admin = request.user.is_staff or request.user.is_superuser
+
+    if not is_admin and not barbeiro:
+        messages.error(
+            request,
+            "Acesso restrito aos barbeiros."
+        )
+        return redirect("agendar_cliente")
+
+    servico = get_object_or_404(
+        Servico,
+        id=servico_id,
+    )
+
+    if request.method == "POST":
+        form = ServicoForm(
+            request.POST,
+            instance=servico,
+        )
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(
+                request,
+                "Serviço atualizado com sucesso."
+            )
+
+            return redirect("servicos_painel")
+
+    else:
+        form = ServicoForm(instance=servico)
+
+    servicos = Servico.objects.all().order_by(
+        "-ativo",
+        "nome",
+    )
+
+    return render(
+        request,
+        "agendamentos/servicos.html",
+        {
+            "servicos": servicos,
+            "form": form,
+            "servico_editando": servico,
+            "modo_edicao": True,
+        },
+    )
+
+
+@login_required
+@require_POST
+def servico_alternar_status(request, servico_id):
+    barbeiro = getattr(request.user, "barbeiro_perfil", None)
+    is_admin = request.user.is_staff or request.user.is_superuser
+
+    if not is_admin and not barbeiro:
+        messages.error(
+            request,
+            "Acesso restrito aos barbeiros."
+        )
+        return redirect("agendar_cliente")
+
+    servico = get_object_or_404(
+        Servico,
+        id=servico_id,
+    )
+
+    servico.ativo = not servico.ativo
+    servico.save(update_fields=["ativo"])
+
+    if servico.ativo:
+        messages.success(
+            request,
+            "Serviço ativado com sucesso."
+        )
+    else:
+        messages.warning(
+            request,
+            "Serviço desativado com sucesso."
+        )
+
+    return redirect("servicos_painel")
+
+@login_required
+def notificacoes_usuario(request):
+    notificacoes = (
+        Notificacao.objects
+        .select_related(
+            "agendamento",
+            "agendamento__servico",
+            "agendamento__barbeiro",
+        )
+        .filter(usuario=request.user)
+        .order_by("-criada_em")
+    )
+
+    filtro = request.GET.get("filtro", "").strip()
+
+    if filtro == "nao_lidas":
+        notificacoes = notificacoes.filter(lida=False)
+
+    total_nao_lidas = notificacoes.filter(lida=False).count()
+
+    return render(
+        request,
+        "agendamentos/notificacoes.html",
+        {
+            "notificacoes": notificacoes,
+            "filtro": filtro,
+            "total_nao_lidas": total_nao_lidas,
+        },
+    )
+
+
+@login_required
+@require_POST
+def notificacao_marcar_lida(request, notificacao_id):
+    notificacao = get_object_or_404(
+        Notificacao,
+        id=notificacao_id,
+        usuario=request.user,
+    )
+
+    notificacao.lida = True
+    notificacao.save(update_fields=["lida"])
+
+    return redirect("notificacoes_usuario")
+
+
+@login_required
+@require_POST
+def notificacoes_marcar_todas_lidas(request):
+    Notificacao.objects.filter(
+        usuario=request.user,
+        lida=False,
+    ).update(lida=True)
+
+    messages.success(
+        request,
+        "Todas as notificações foram marcadas como lidas."
+    )
+
+    return redirect("notificacoes_usuario")
+
+@login_required
 def dashboard_barbeiro(request):
     barbeiro = getattr(request.user, "barbeiro_perfil", None)
 
@@ -948,6 +1405,17 @@ def dashboard_barbeiro(request):
 
             agendamento.status = novo_status
             agendamento.save(update_fields=["status"])
+            
+            criar_notificacao(
+                usuario=agendamento.cliente,
+                titulo="Status do agendamento atualizado",
+                mensagem=(
+                    f"Seu agendamento de {agendamento.servico.nome} "
+                    f"foi atualizado para {agendamento.get_status_display()}."
+                ),
+                tipo="status",
+                agendamento=agendamento,
+            )
 
             messages.success(
                 request,

@@ -20,9 +20,22 @@
                                 {{ agendamento.cliente.first_name|default:agendamento.cliente.username }}
                             </div>
 
-                            <small class="text-muted">
+                            <a
+                                href="{% url 'cliente_detalhe' agendamento.cliente.id %}"
+                                class="dashboard-client-link"
+                            >
+                                {% if agendamento.cliente.cliente_perfil %}
+                                    {{ agendamento.cliente.cliente_perfil.nome }}
+                                {% elif agendamento.cliente.get_full_name %}
+                                    {{ agendamento.cliente.get_full_name }}
+                                {% else %}
+                                    {{ agendamento.cliente.username }}
+                                {% endif %}
+                            </a>
+
+                            <div class="dashboard-client-user">
                                 @{{ agendamento.cliente.username }}
-                            </small>
+                            </div>
                         </td>
 
                         <td

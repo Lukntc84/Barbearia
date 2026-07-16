@@ -4,18 +4,43 @@
 
     <nav class="barber-navbar">
       <div class="barber-navbar-inner">
-        <a href="{% url 'inicio' %}" class="barber-brand">BARBER SHOP</a>
-
         <div class="barber-nav-links">
           {% if request.user.is_authenticated %}
             {% if request.user.is_staff or request.user.is_superuser or request.user.barbeiro_perfil %}
               <a href="{% url 'dashboard_barbeiro' %}" class="barber-nav-link">Painel</a>
 
               <a href="{% url 'configuracoes_barbeiro' %}" class="barber-nav-link">Configurações</a>
+
+              <a href="{% url 'servicos_painel' %}" class="barber-nav-link">Serviços</a>
+                <a
+                    href="{% url 'notificacoes_usuario' %}"
+                    class="barber-nav-link notification-nav-link"
+                >
+                    Notificações
+
+                    {% if notificacoes_nao_lidas_count > 0 %}
+                        <span class="notification-badge">
+                            {{ notificacoes_nao_lidas_count }}
+                        </span>
+                    {% endif %}
+                </a>
             {% else %}
               <a href="{% url 'agendar_cliente' %}" class="barber-nav-link">Agendar</a>
 
               <a href="{% url 'meus_agendamentos' %}" class="barber-nav-link">Meus agendamentos</a>
+
+                <a
+                    href="{% url 'notificacoes_usuario' %}"
+                    class="barber-nav-link notification-nav-link"
+                >
+                    Notificações
+
+                    {% if notificacoes_nao_lidas_count > 0 %}
+                        <span class="notification-badge">
+                            {{ notificacoes_nao_lidas_count }}
+                        </span>
+                    {% endif %}
+                </a>
             {% endif %}
 
             <form method="post" action="{% url 'logout_cliente' %}" class="barber-nav-form">
@@ -33,3 +58,53 @@
     </nav>
   </div>
 </nav>
+{% if request.user.is_authenticated and notificacao_popup and request.resolver_match.url_name != "notificacoes_usuario" %}
+    <div
+        class="notification-toast"
+        id="notificationToast"
+    >
+        <div class="notification-toast-icon">
+            !
+        </div>
+
+        <div class="notification-toast-content">
+            <span>
+                Nova notificação
+            </span>
+
+            <strong>
+                {{ notificacao_popup.titulo }}
+            </strong>
+
+            <p>
+                {{ notificacao_popup.mensagem|truncatechars:95 }}
+            </p>
+
+            <a href="{% url 'notificacoes_usuario' %}">
+                Ver notificações
+            </a>
+        </div>
+
+        <button
+            type="button"
+            class="notification-toast-close"
+            onclick="fecharNotificationToast()"
+        >
+            ×
+        </button>
+    </div>
+
+    <script>
+        function fecharNotificationToast() {
+            const toast = document.getElementById("notificationToast");
+
+            if (toast) {
+                toast.classList.add("notification-toast-hide");
+            }
+        }
+
+        setTimeout(function () {
+            fecharNotificationToast();
+        }, 9000);
+    </script>
+{% endif %}
