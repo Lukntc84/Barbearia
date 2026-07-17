@@ -136,6 +136,8 @@ class ConfiguracaoBarbeiroForm(forms.ModelForm):
             "antecedencia_agendamento_minutos",
             "dias_futuros_agendamento",
             "permitir_agendamento_mesmo_dia",
+            "lembretes_ativos",
+            "antecedencia_lembrete_horas",
         ]
 
         widgets = {
@@ -161,6 +163,14 @@ class ConfiguracaoBarbeiroForm(forms.ModelForm):
             }),
             "permitir_agendamento_mesmo_dia": forms.CheckboxInput(attrs={
                 "class": "form-check-input",
+            }),
+                        "lembretes_ativos": forms.CheckboxInput(attrs={
+                "class": "form-check-input",
+            }),
+            "antecedencia_lembrete_horas": forms.NumberInput(attrs={
+                "class": "form-control",
+                "min": 1,
+                "max": 168,
             }),
         }
 

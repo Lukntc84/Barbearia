@@ -117,6 +117,114 @@
                     {% for field in configuracao_form %}
                         <div
                             class="
+                            {% if field.name == 'permitir_agendamento_mesmo_dia' or field.name == 'lembretes_ativos' %}
+                                col-12
+                            {% else %}
+                                col-12 col-md-6
+                            {% endif %}"
+                        >
+                            {% if field.name == "permitir_agendamento_mesmo_dia" or field.name == "lembretes_ativos" %}
+                                <div class="config-switch">
+                                    {{ field }}
+
+                                    <label for="{{ field.id_for_label }}">
+                                        {{ field.label }}
+                                    </label>
+                                </div>
+                            {% elif field.name == "antecedencia_lembrete_horas" %}
+                                <label
+                                    for="{{ field.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    {{ field.label }}
+                                </label>
+
+                                <div class="input-group">
+                                    {{ field }}
+
+                                    <span class="input-group-text">
+                                        horas
+                                    </span>
+                                </div>
+                            {% else %}
+                                <label
+                                    for="{{ field.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    {{ field.label }}
+                                </label>
+
+                                {{ field }}
+                            {% endif %}
+
+                            {% if field.help_text %}
+                                <small class="config-help">
+                                    {{ field.help_text }}
+                                </small>
+                            {% endif %}
+
+                            {% for error in field.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary-barber mt-4"
+                >
+                    Salvar regras gerais
+                </button>
+            </form>
+        </section>
+        <div class="col-12 col-md-6">
+            <label class="form-label d-block">
+                Lembretes internos
+            </label>
+
+            <div class="config-switch">
+                {{ configuracao_form.lembretes_ativos }}
+
+                <label for="{{ configuracao_form.lembretes_ativos.id_for_label }}">
+                    Ativar lembretes automáticos
+                </label>
+            </div>
+
+            <small class="config-help">
+                Quando ativo, o sistema cria notificações internas para cliente e barbeiro antes do horário.
+            </small>
+
+            {% for error in configuracao_form.lembretes_ativos.errors %}
+                <div class="text-danger small mt-1">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="acao"
+                    value="salvar_configuracoes"
+                >
+
+                {% if request.user.is_staff or request.user.is_superuser %}
+                    <input
+                        type="hidden"
+                        name="barbeiro_id"
+                        value="{{ barbeiro.id }}"
+                    >
+                {% endif %}
+
+                <div class="row g-4">
+                    {% for field in configuracao_form %}
+                        <div
+                            class="
                             {% if field.name == 'permitir_agendamento_mesmo_dia' %}
                                 col-12
                             {% else %}

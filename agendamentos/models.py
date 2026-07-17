@@ -67,6 +67,20 @@ class ConfiguracaoBarbeiro(models.Model):
         default=True,
         verbose_name="Permitir agendamento no mesmo dia"
     )
+    
+    lembretes_ativos = models.BooleanField(
+        default=True,
+        verbose_name="Lembretes ativos",
+        help_text="Define se o sistema deve gerar lembretes internos para os agendamentos deste barbeiro."
+    )
+
+    antecedencia_lembrete_horas = models.PositiveIntegerField(
+        default=24,
+        verbose_name="Antecedência do lembrete",
+        help_text="Quantidade de horas antes do atendimento para gerar o lembrete."
+    )
+    
+    
 
     ativo = models.BooleanField(
         default=True,
@@ -104,6 +118,16 @@ class ConfiguracaoBarbeiro(models.Model):
         if self.dias_futuros_agendamento > 365:
             raise ValidationError(
                 "O limite de dias futuros não pode ultrapassar 365 dias."
+            )
+        
+        if self.antecedencia_lembrete_horas < 1:
+            raise ValidationError(
+                "A antecedência do lembrete precisa ser de pelo menos 1 hora."
+            )
+
+        if self.antecedencia_lembrete_horas > 168:
+            raise ValidationError(
+                "A antecedência do lembrete não pode ultrapassar 168 horas."
             )
     
 class HorarioFuncionamento(models.Model):
@@ -267,6 +291,7 @@ class Notificacao(models.Model):
         ("cancelamento", "Cancelamento"),
         ("reagendamento", "Reagendamento"),
         ("status", "Alteração de status"),
+         ("lembrete", "Lembrete de agendamento"),
         ("sistema", "Sistema"),
     ]
 

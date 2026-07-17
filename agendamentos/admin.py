@@ -31,6 +31,8 @@ class ConfiguracaoBarbeiroAdmin(admin.ModelAdmin):
         "dias_futuros_agendamento",
         "permitir_agendamento_mesmo_dia",
         "ativo",
+        "lembretes_ativos",
+        "antecedencia_lembrete_horas",
     )
 
     list_filter = (
@@ -107,6 +109,7 @@ class NotificacaoAdmin(admin.ModelAdmin):
         "tipo",
         "lida",
         "criada_em",
+        
     )
 
     list_filter = (
